@@ -125,9 +125,7 @@ def add_contact():
                         print('email: ', email_add, end=' ')
                         continue
                 if birdate_add == '' and i < 4:
-                    print('зашел в бирдате')
                     if isdate(list_toins[i]):
-                        print('da data')
                         birdate_add = list_toins[i]
                         print('birdate_add: ', birdate_add, end=' ')
                         continue

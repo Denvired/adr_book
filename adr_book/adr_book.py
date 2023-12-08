@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
+# I'm make this script as homework from my book. this is first quest.
+# we save and load data (list of objects) to file
+# possibilities: view, add, edit, find, delete records
 # Создадим скрипт для адресной книги, сохранение и чтение ее из файла.
 # Возможности: просмотр, добавление, изменение, поиск, удаление записей
 
 import os
 import re
+from datetime import date
 
-contact_list = []  # main list of contacst
-file_contacts = 'file_contacts.txt'
-file_exist = None
+contact_list = []  # main list of contacts
+file_contacts = 'file_contacts.txt'  # way to our file
+file_exist = None  # ?DELETE?
 
 
-# для декорирования цветом
+# for terminal color decoration
 class Style:
     BLACK = '\033[30m'
     RED = '\033[31m'
@@ -26,33 +30,64 @@ class Style:
 
 
 class Contact:
-    def __init__(self, name, telef=None, email=None, birth=None, town=None):
+    """Class is records with fields: name, telephone, email, birthdate and town"""
+
+    def __init__(self, name, **cont_params):
+        """Init of object Contact. Get name and **cont_params
+        possible params: telef = str, email = str, town = str, birth(date as ??.??.??)"""
+
         self.name = name
-        self.telef = telef
-        self.email = email
-        self.town = town
-        self.birth = birth
+        self.telef = ''
+        self.email = ''
+        self.birth = ''
+        self.town = ''
+        print(f'name = {self.name}')
+        for param_nam, param_stat in cont_params.items():
+            if param_nam == 'telef':
+                self.telef = param_stat
+                print(f'telephone = {self.telef}')
+            elif param_nam == 'email':
+                self.email = param_stat
+                print(f'email = {self.email}')
+            elif param_nam == 'birth':
+                # make a date from str
+                print(param_stat)
+                self.birth = date(int(param_stat[6:]), int(param_stat[3:5]), int(param_stat[:2]))
+                print(f'birth = {self.birth}')
+            elif param_nam == 'town':
+                self.town = param_stat
+                print(f'town = {self.town}')
     # end of __init__()
+
+    def __str__(self):
+        """Printable variant of class"""
+        if self.telef == NotImplemented:
+            print('Not imp')
+        str_forret = 'name = {0}, telephone = {1}, email = {2}, birthdate = {3}, town = {4}'.format(
+            self.name, self.telef, self.email, self.birth, self.town)
+        return str_forret
+    # end of __str__()
 # end of class style():
 
 
-# clear screen
 def clearscr():
+    """clear screen"""
+
     print('\n' * 100)
 # End of clearscr():
 
 
-# тут мы загружаем данные в список из файла
 def loaddump():
+    """load data from file to list"""
+
     global file_exist
     print('loaddump() is working')
-    # path_to_file_contacts = os.path.join(file_contacts, os.getcwd())
     path_to_file_contacts = os.path.join(os.getcwd(), file_contacts)
     print(path_to_file_contacts)
     if os.path.exists(path_to_file_contacts):
-        print('файл есть, будем читать')
+        print('have file, reading')
     else:
-        print('Файла нет')
+        print('there is no file')
         file_exist = False
 # End of loaddump():
 
@@ -67,19 +102,31 @@ def view_contacts():
 # End of view_contacts():
 
 
-# Здесь получим от пользователя строку и разобьем ее для анализа и создадим объект
 def add_contact():
-
-    # проверим подходит ли дата под шаблон
+    """Here we are print istruction for input, after we take input. after we analise and split user data.
+    At the end, we make a record to object of class Contact"""
+    #
     def isdate(dated):
-        patt = re.compile(r'\d\d\.\d\d\.\d\d')
-        print('dated=', dated)
-        print(patt.match(dated))
-        if patt.match(dated):
+        """check the string is date pattern"""
+
+        patt = re.compile(r'\d\d[-.,/*_]\d\d[-.,/*_]\d{4}')  # pattern, like 25.05.1991 or 22/12/1986
+        # 08.12.23 add more variants for pattern of date
+        # ~~print('dated=', dated)
+        # ~~print(patt.match(dated))
+        if patt.fullmatch(dated):
             return True
         else:
             return False
     # end of isdate()
+
+    def istel(teled):
+        """check the string is tel pattern"""
+
+        patt = re.compile(r'[+]?\d+')
+        if patt.fullmatch(teled):
+            return True
+        else:
+            return False
 
     while True:
         name_add = ''
@@ -87,6 +134,8 @@ def add_contact():
         email_add = ''
         birdate_add = ''
         town_add = ''
+        to_add_cont = {}
+        rdy = False
         clearscr()
         print('add_contact() is working')
         print('Enter data separated by commas. Template: ' + Style.YELLOW +
@@ -96,47 +145,76 @@ def add_contact():
         print('Empty Enter to return to main menu')
         user_input = input()
         if user_input == '':
-            print('Выхожу в основное меню')
+            print('Return to main menu')
             break
         list_toins = user_input.split(',')
-        if len(list_toins) < 2:
+        if len(list_toins) < 2:   # if only 1 entered item need start again
             print('Need address or email')
             input('Press any key')
             continue
+        # This cycle is big, becouse user input is flexible.
+        # We able write like this patterns (must be Name and telephone or email as minimal), comma is our separator:
+        # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
+        # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
+        # Andrew,my@com.ru,9050442333, moscow
+        # Andrew,9050442333, moscow
+        # Andrew,my@com.ru, moscow
+        # Andrew,my@com.ru, 28.03.12
+        # etc
         for i in range(len(list_toins)):
-            print('i=', i)
-            list_toins[i] = list_toins[i].rstrip().lstrip()  # уберем пробелы по краям
+            # ~~print('i=', i)
+            list_toins[i] = list_toins[i].rstrip().lstrip()  # del whitespaces from boards
             if i == 0:
                 name_add = list_toins[i]
-                print('имя: ', name_add, end=' ')
+                # ~~print('name: ', name_add, end=' ')
                 continue
             if i == 1:
                 if '@' in list_toins[i]:
+                    to_add_cont['email'] = list_toins[i]
                     email_add = list_toins[i]
-                    print('email: ', email_add, end=' ')
+                    # ~~print('email: ', email_add, end=' ')
                 else:
-                    tel_add = list_toins[i]
-                    print('tel_add: ', tel_add, end=' ')
+                    if istel(list_toins[i]):
+                        to_add_cont['telef'] = list_toins[i]
+                        tel_add = list_toins[i]
+                    # ~~print('tel_add: ', tel_add, end=' ')
+                    else:
+                        print(Style.MAGENTA + 'You not entered telephone or email!' + Style.RESET)
+                        break
+                rdy = True
                 continue
             if i >= 2:
+                if tel_add == '' and i == 2:
+                    if istel(list_toins[i]):
+                        to_add_cont['telef'] = list_toins[i]
+                        tel_add = list_toins[i]
+                        # ~~print('email: ', email_add, end=' ')
+                        continue
                 if email_add == '' and i == 2:
                     if '@' in list_toins[i]:
+                        to_add_cont['email'] = list_toins[i]
                         email_add = list_toins[i]
-                        print('email: ', email_add, end=' ')
+                        # ~~print('email: ', email_add, end=' ')
                         continue
                 if birdate_add == '' and i < 4:
                     if isdate(list_toins[i]):
+                        to_add_cont['birth'] = list_toins[i]
                         birdate_add = list_toins[i]
-                        print('birdate_add: ', birdate_add, end=' ')
+                        # ~~print('birdate_add: ', birdate_add, end=' ')
                         continue
                 if town_add == '':
+                    to_add_cont['town'] = list_toins[i]
                     town_add = list_toins[i]
-                    print('town_add: ', town_add)
+                    # ~~print('town_add: ', town_add)
                     break
 
-        print('Вы добавили: ', '~'.join(list_toins))
+        # ~~print('You added: ', '~'.join(list_toins))
+        # ~~print('You added dictionary: ', to_add_cont)
+        if rdy:
+            contact_toapp = Contact(name_add, **to_add_cont)
+            contact_list.append(contact_toapp)
+            print(contact_toapp)
         input('Press any key')
-
 # End of add_contact()
 
 
@@ -145,11 +223,12 @@ def find_contact():
 # End of find_contact():
 
 
-# тело для вывода меню и дальнейшего выбора
 def menu():
+    """print menu sreens, and take user's input, after call next functions, based on users input"""
 
-    # печатает определлные экраны меню
     def printpunkts(screen='main'):
+        """clear screen and print menu"""
+
         clearscr()
         if screen == 'main':
             print(Style.YELLOW + 'Address book:'.rjust(30) + Style.RESET)
@@ -167,26 +246,26 @@ def menu():
         printpunkts()
         choice = input()
         if choice == '1':
-            print(f'Выбор: {choice}')
+            print(f'Choice: {choice}')
             add_contact()
         elif choice == '2':
-            print(f'Выбор: {choice}')
+            print(f'Choice: {choice}')
             print(file_exist)
             view_contacts()
         elif choice == '3':
-            print(f'Выбор: {choice}')
+            print(f'Choice: {choice}')
             find_contact()
         elif choice == '4':
-            print(f'Выбор: {choice}, выхожу, до свидания')
+            print(f'Choice: {choice}, quit, bye bye')
             savedump()
             break
         else:
-            print(f'Выбор: {choice}')
-            print('Некорректный ввод, повторите')
+            print(f'Choice: {choice}')
+            print('Incorrect intput, try again')
 # End of menu()
 
 
-# основное тело скрипта
+# main body of script
 def main():
     os.system('')
     print('main working')

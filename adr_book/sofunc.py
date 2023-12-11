@@ -37,7 +37,7 @@ def makedate(datestr):
     except ValueError:
         print('Your date input is wrong format')
         input('Press any key')
-        return ''
+        return None
     else:
         return str_to_ret
 # end of makedate(datestr):
@@ -55,7 +55,7 @@ def main():
     # sps = {'test': 'ts'}
     # if sps['tets'] == '':  # KeyError
     #    print('you')
-    input()
+
     istel('+111122211')
     istel('2233332222')
     istel('eer444erer')
@@ -80,10 +80,9 @@ def main():
     isdate('22*22/22')
     isdate('22*22/1522')
 
-    strd = '22,22.22'
-
     print('--------------')
     '''
+    strd = '22,22.22'
     name_add = 'den'
     tel_add = '2314'
     email_add = ''

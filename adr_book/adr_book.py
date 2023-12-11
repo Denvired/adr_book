@@ -6,8 +6,6 @@
 # Возможности: просмотр, добавление, изменение, поиск, удаление записей
 
 import os
-import re
-from datetime import date
 import sofunc
 
 
@@ -41,7 +39,7 @@ class Contact:
         self.name = name
         self.telef = ''
         self.email = ''
-        self.birth = ''
+        self.birth = None
         self.town = ''
         print(f'name = {self.name}')
         for param_nam, param_stat in cont_params.items():
@@ -63,7 +61,7 @@ class Contact:
         """Printable variant of class"""
 
         str_forret = 'name = {0}, telephone = {1}, email = {2}, birthdate = {3}, town = {4}'.format(
-            self.name, self.telef, self.email, self.birth, self.town)
+            self.name, self.telef, self.email, self.birth if self.birth is not None else '', self.town)
         return str_forret
     # end of __str__()
 # end of class style():
@@ -91,6 +89,7 @@ def savedump():
 
 def view_contacts():
     print('view_contacts() is working')
+    input('Press any key')
 # End of view_contacts():
 
 
@@ -100,18 +99,14 @@ def add_contact():
 
     while True:
         name_add = ''
-        tel_add = ''
-        email_add = ''
-        birdate_add = ''
-        town_add = ''
         to_add_cont = {}
         rdy = False
-        sofunc.clearscr()
+        # sofunc.clearscr()
         print('add_contact() is working')
         print('Enter data separated by commas. Template: ' + Style.YELLOW +
               'Name, telephone number, email, birth date, town' + Style.RESET)
         print(Style.MAGENTA + 'Need 2 fields as minimal. ' + Style.RESET +
-              'Name and one of (telephone number or email). eg: Andrew, 9050442333, my@com.ru,28.03.12,NY')
+              'Name and one of (telephone number or email). eg: Andrew, 9050442333, my@com.ru,28.03.2012,NY')
         print('Empty Enter to return to main menu')
         user_input = input()
         if user_input == '':
@@ -138,58 +133,38 @@ def add_contact():
                 name_add = list_toins[i]
                 # ~~print('name: ', name_add, end=' ')
                 continue
-            if i == 1:
-                if '@' in list_toins[i]:
-                    to_add_cont['email'] = list_toins[i]
-                    email_add = list_toins[i]
-                    # ~~print('email: ', email_add, end=' ')
-                else:
-                    if sofunc.istel(list_toins[i]):
-                        to_add_cont['telef'] = list_toins[i]
-                        tel_add = list_toins[i]
-                    # ~~print('tel_add: ', tel_add, end=' ')
-                    else:
-                        print(Style.MAGENTA + 'You not entered telephone or email!' + Style.RESET)
-                        break
+            if 'email' not in to_add_cont.keys() and '@' in list_toins[i]:
+                to_add_cont['email'] = list_toins[i]
                 rdy = True
                 continue
-            if i >= 2:
-                if tel_add == '' and i == 2:
-                    if sofunc.istel(list_toins[i]):
-                        to_add_cont['telef'] = list_toins[i]
-                        tel_add = list_toins[i]
-                        # ~~print('email: ', email_add, end=' ')
-                        continue
-                if email_add == '' and i == 2:
-                    if '@' in list_toins[i]:
-                        to_add_cont['email'] = list_toins[i]
-                        email_add = list_toins[i]
-                        # ~~print('email: ', email_add, end=' ')
-                        continue
-                if birdate_add == '' and i < 4:
-                    if sofunc.isdate(list_toins[i]):
-                        to_add_cont['birth'] = list_toins[i]
-                        birdate_add = sofunc.makedate(list_toins[i])
-                        # ~~print('birdate_add: ', birdate_add, end=' ')
-                        continue
-                if town_add == '':
-                    to_add_cont['town'] = list_toins[i]
-                    town_add = list_toins[i]
-                    # ~~print('town_add: ', town_add)
-                    break
+            if 'telef' not in to_add_cont.keys() and sofunc.istel(list_toins[i]):
+                to_add_cont['telef'] = list_toins[i]
+                rdy = True
+                continue
+            if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):
+                print(list_toins[i])
+                to_add_cont['birth'] = sofunc.makedate(list_toins[i])
+                continue
+            if 'town' not in to_add_cont.keys():
+                to_add_cont['town'] = list_toins[i]
+                # we can uncomment break to modify input. its mean, that town (not tel, not date and not email)
+                # in our input is a last position to analise. after town, we miss all entriyes
+                # break
 
-        # ~~print('You added: ', '~'.join(list_toins))
-        # ~~print('You added dictionary: ', to_add_cont)
         if rdy:
             contact_toapp = Contact(name_add, **to_add_cont)
             contact_list.append(contact_toapp)
             print(contact_toapp)
+            print(vars(contact_toapp))
+        else:
+            print('Not enough data')
         input('Press any key')
 # End of add_contact()
 
 
 def find_contact():
     print('find_contact() is working')
+    input('Press any key')
 # End of find_contact():
 
 
@@ -234,7 +209,7 @@ def menu():
         else:
             print(f'Choice: {choice}')
             mess_to = Style.RED + 'Incorrect intput: {0}, try again'.format(choice) + Style.RESET
-        printpunkts(mess_to)
+        printpunkts(msgstr=mess_to)
 # End of menu()
 
 

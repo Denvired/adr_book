@@ -8,6 +8,8 @@
 import os
 import re
 from datetime import date
+import sofunc
+
 
 contact_list = []  # main list of contacts
 file_contacts = 'file_contacts.txt'  # way to our file
@@ -34,7 +36,7 @@ class Contact:
 
     def __init__(self, name, **cont_params):
         """Init of object Contact. Get name and **cont_params
-        possible params: telef = str, email = str, town = str, birth(date as ??.??.??)"""
+        possible params: telef = str, email = str, town = str, birth(date as ??.??.????)"""
 
         self.name = name
         self.telef = ''
@@ -50,9 +52,7 @@ class Contact:
                 self.email = param_stat
                 print(f'email = {self.email}')
             elif param_nam == 'birth':
-                # make a date from str
-                print(param_stat)
-                self.birth = date(int(param_stat[6:]), int(param_stat[3:5]), int(param_stat[:2]))
+                self.birth = param_stat
                 print(f'birth = {self.birth}')
             elif param_nam == 'town':
                 self.town = param_stat
@@ -61,20 +61,12 @@ class Contact:
 
     def __str__(self):
         """Printable variant of class"""
-        if self.telef == NotImplemented:
-            print('Not imp')
+
         str_forret = 'name = {0}, telephone = {1}, email = {2}, birthdate = {3}, town = {4}'.format(
             self.name, self.telef, self.email, self.birth, self.town)
         return str_forret
     # end of __str__()
 # end of class style():
-
-
-def clearscr():
-    """clear screen"""
-
-    print('\n' * 100)
-# End of clearscr():
 
 
 def loaddump():
@@ -105,28 +97,6 @@ def view_contacts():
 def add_contact():
     """Here we are print istruction for input, after we take input. after we analise and split user data.
     At the end, we make a record to object of class Contact"""
-    #
-    def isdate(dated):
-        """check the string is date pattern"""
-
-        patt = re.compile(r'\d\d[-.,/*_]\d\d[-.,/*_]\d{4}')  # pattern, like 25.05.1991 or 22/12/1986
-        # 08.12.23 add more variants for pattern of date
-        # ~~print('dated=', dated)
-        # ~~print(patt.match(dated))
-        if patt.fullmatch(dated):
-            return True
-        else:
-            return False
-    # end of isdate()
-
-    def istel(teled):
-        """check the string is tel pattern"""
-
-        patt = re.compile(r'[+]?\d+')
-        if patt.fullmatch(teled):
-            return True
-        else:
-            return False
 
     while True:
         name_add = ''
@@ -136,7 +106,7 @@ def add_contact():
         town_add = ''
         to_add_cont = {}
         rdy = False
-        clearscr()
+        sofunc.clearscr()
         print('add_contact() is working')
         print('Enter data separated by commas. Template: ' + Style.YELLOW +
               'Name, telephone number, email, birth date, town' + Style.RESET)
@@ -174,7 +144,7 @@ def add_contact():
                     email_add = list_toins[i]
                     # ~~print('email: ', email_add, end=' ')
                 else:
-                    if istel(list_toins[i]):
+                    if sofunc.istel(list_toins[i]):
                         to_add_cont['telef'] = list_toins[i]
                         tel_add = list_toins[i]
                     # ~~print('tel_add: ', tel_add, end=' ')
@@ -185,7 +155,7 @@ def add_contact():
                 continue
             if i >= 2:
                 if tel_add == '' and i == 2:
-                    if istel(list_toins[i]):
+                    if sofunc.istel(list_toins[i]):
                         to_add_cont['telef'] = list_toins[i]
                         tel_add = list_toins[i]
                         # ~~print('email: ', email_add, end=' ')
@@ -197,9 +167,9 @@ def add_contact():
                         # ~~print('email: ', email_add, end=' ')
                         continue
                 if birdate_add == '' and i < 4:
-                    if isdate(list_toins[i]):
+                    if sofunc.isdate(list_toins[i]):
                         to_add_cont['birth'] = list_toins[i]
-                        birdate_add = list_toins[i]
+                        birdate_add = sofunc.makedate(list_toins[i])
                         # ~~print('birdate_add: ', birdate_add, end=' ')
                         continue
                 if town_add == '':
@@ -226,10 +196,10 @@ def find_contact():
 def menu():
     """print menu sreens, and take user's input, after call next functions, based on users input"""
 
-    def printpunkts(screen='main'):
+    def printpunkts(screen='main', msgstr=''):
         """clear screen and print menu"""
 
-        clearscr()
+        sofunc.clearscr()
         if screen == 'main':
             print(Style.YELLOW + 'Address book:'.rjust(30) + Style.RESET)
             print(Style.GREEN + 'make a choice and push ENTER:'.rjust(39) + Style.RESET)
@@ -237,13 +207,15 @@ def menu():
             print('2. View contacts')
             print('3. Find (change, delete) contacts')
             print('4. Exit')
+            if msgstr != '':
+                print(msgstr)
             print(Style.BLUE + 'Enter choice: ' + Style.RESET, end='')
     # end of printpunkts():
 
     print('menu is working')
-
+    printpunkts()
     while True:
-        printpunkts()
+        mess_to = ''  # message to send in reprint menu
         choice = input()
         if choice == '1':
             print(f'Choice: {choice}')
@@ -261,7 +233,8 @@ def menu():
             break
         else:
             print(f'Choice: {choice}')
-            print('Incorrect intput, try again')
+            mess_to = Style.RED + 'Incorrect intput: {0}, try again'.format(choice) + Style.RESET
+        printpunkts(mess_to)
 # End of menu()
 
 

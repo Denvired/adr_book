@@ -7,6 +7,7 @@
 
 import os
 import sofunc
+import datetime
 
 
 contact_list = []  # main list of contacts
@@ -41,6 +42,7 @@ class Contact:
         self.email = ''
         self.birth = None
         self.town = ''
+        self.extra_paramlist = {}  # we can read extra params
         print(f'name = {self.name}')
         for param_nam, param_stat in cont_params.items():
             if param_nam == 'telef':
@@ -55,6 +57,8 @@ class Contact:
             elif param_nam == 'town':
                 self.town = param_stat
                 print(f'town = {self.town}')
+            else:
+                self.extra_paramlist[param_nam] = param_stat  # extra params
     # end of __init__()
 
     def __str__(self):
@@ -88,7 +92,21 @@ def savedump():
 
 
 def view_contacts():
+    """Print table of our contacts"""
+
     print('view_contacts() is working')
+    # Head of Table
+    print('Name'.center(30) + '|' + 'Telephone'.center(15) + '|' + 'Email'.center(25) + '|' + 'Age'.center(8) + '|'
+          + 'Town '.center(25))
+    for contact in contact_list:  # records
+        if contact.birth is not None:
+            now = datetime.date.today()
+            tdelta = now - contact.birth
+            age = tdelta.days // 365
+        else:
+            age = ''
+        print(f'{contact.name:<30}|{contact.telef:<15}|{contact.email:<25}|{age:<8}|{contact.town:<25}')
+
     input('Press any key')
 # End of view_contacts():
 
@@ -108,56 +126,61 @@ def add_contact():
         print(Style.MAGENTA + 'Need 2 fields as minimal. ' + Style.RESET +
               'Name and one of (telephone number or email). eg: Andrew, 9050442333, my@com.ru,28.03.2012,NY')
         print('Empty Enter to return to main menu')
-        user_input = input()
-        if user_input == '':
-            print('Return to main menu')
-            break
-        list_toins = user_input.split(',')
-        if len(list_toins) < 2:   # if only 1 entered item need start again
-            print('Need address or email')
-            input('Press any key')
-            continue
-        # This cycle is big, becouse user input is flexible.
-        # We able write like this patterns (must be Name and telephone or email as minimal), comma is our separator:
-        # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
-        # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
-        # Andrew,my@com.ru,9050442333, moscow
-        # Andrew,9050442333, moscow
-        # Andrew,my@com.ru, moscow
-        # Andrew,my@com.ru, 28.03.12
-        # etc
-        for i in range(len(list_toins)):
-            # ~~print('i=', i)
-            list_toins[i] = list_toins[i].rstrip().lstrip()  # del whitespaces from boards
-            if i == 0:
-                name_add = list_toins[i]
-                # ~~print('name: ', name_add, end=' ')
-                continue
-            if 'email' not in to_add_cont.keys() and '@' in list_toins[i]:
-                to_add_cont['email'] = list_toins[i]
-                rdy = True
-                continue
-            if 'telef' not in to_add_cont.keys() and sofunc.istel(list_toins[i]):
-                to_add_cont['telef'] = list_toins[i]
-                rdy = True
-                continue
-            if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):
-                print(list_toins[i])
-                to_add_cont['birth'] = sofunc.makedate(list_toins[i])
-                continue
-            if 'town' not in to_add_cont.keys():
-                to_add_cont['town'] = list_toins[i]
-                # we can uncomment break to modify input. its mean, that town (not tel, not date and not email)
-                # in our input is a last position to analise. after town, we miss all entriyes
-                # break
-
-        if rdy:
-            contact_toapp = Contact(name_add, **to_add_cont)
-            contact_list.append(contact_toapp)
-            print(contact_toapp)
-            print(vars(contact_toapp))
+        try:
+            user_input = input(Style.BLUE + Style.UNDERLINE + 'Input data: ' + Style.RESET + ' ')
+        except UnicodeError:
+            print('Wrong symbol entered, Unicode decode error')
         else:
-            print('Not enough data')
+            if user_input == '':
+                print('Return to main menu')
+                break
+            list_toins = user_input.split(',')
+            if len(list_toins) < 2:   # if only 1 entered item need start again
+                print('Need address or email')
+                input('Press any key')
+                continue
+            # This cycle is big, becouse user input is flexible.
+            # We able write like this patterns (must be Name and telephone or email as minimal), comma is our separator:
+            # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
+            # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
+            # Andrew,my@com.ru,9050442333, moscow
+            # Andrew,9050442333, moscow
+            # Andrew,my@com.ru, moscow
+            # Andrew,my@com.ru, 28.03.12
+            # etc
+            for i in range(len(list_toins)):
+                # ~~print('i=', i)
+                list_toins[i] = list_toins[i].rstrip().lstrip()  # del whitespaces from boards
+                if i == 0:
+                    name_add = list_toins[i]
+                    # ~~print('name: ', name_add, end=' ')
+                    continue
+                if 'email' not in to_add_cont.keys() and '@' in list_toins[i]:
+                    to_add_cont['email'] = list_toins[i]
+                    rdy = True
+                    continue
+                if 'telef' not in to_add_cont.keys() and sofunc.istel(list_toins[i]):
+                    to_add_cont['telef'] = list_toins[i]
+                    rdy = True
+                    continue
+                if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):
+                    print(list_toins[i])
+                    to_add_cont['birth'] = sofunc.makedate(list_toins[i])
+                    continue
+                if 'town' not in to_add_cont.keys():
+                    to_add_cont['town'] = list_toins[i]
+                    # we can uncomment break to modify input. its mean, that town (not tel, not date and not email)
+                    # in our input is a last position to analise. after town, we miss all entriyes
+                    # break
+
+            if rdy:
+                contact_toapp = Contact(name_add, **to_add_cont)
+                contact_list.append(contact_toapp)
+                print(contact_toapp)
+                print(vars(contact_toapp))
+            else:
+                print('Not enough data')
+
         input('Press any key')
 # End of add_contact()
 
@@ -218,7 +241,12 @@ def main():
     os.system('')
     print('main working')
     loaddump()
-    menu()
+    try:
+        menu()
+    except KeyboardInterrupt:
+        print('Stopping program by keyboard')
+    finally:
+        savedump()
 # End of func main():
 
 

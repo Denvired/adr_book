@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1d048450-a5a4-4b5c-bf8c-cffa233d442d" name="Changes" comment="update analisation for user input">
+    <list default="true" id="1d048450-a5a4-4b5c-bf8c-cffa233d442d" name="Changes" comment="added print of Contacts&#10;added some exceptions like keyboardinterrupt and unicodeerror">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/adr_book.py" beforeDir="false" afterPath="$PROJECT_DIR$/adr_book.py" afterDir="false" />
     </list>
@@ -208,7 +208,15 @@
       <option name="project" value="LOCAL" />
       <updated>1702323643590</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="added print of Contacts&#10;added some exceptions like keyboardinterrupt and unicodeerror">
+      <option name="closed" value="true" />
+      <created>1702408925433</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1702408925433</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -228,6 +236,7 @@
     <MESSAGE value="add create object from input and update pattern for date and telephone, modify print class Contact" />
     <MESSAGE value="moved small func to sofunc.py&#10;data check add in add_contact()" />
     <MESSAGE value="update analisation for user input" />
-    <option name="LAST_COMMIT_MESSAGE" value="update analisation for user input" />
+    <MESSAGE value="added print of Contacts&#10;added some exceptions like keyboardinterrupt and unicodeerror" />
+    <option name="LAST_COMMIT_MESSAGE" value="added print of Contacts&#10;added some exceptions like keyboardinterrupt and unicodeerror" />
   </component>
 </project>

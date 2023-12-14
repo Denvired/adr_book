@@ -2,16 +2,21 @@
 # I'm make this script as homework from my book. this is first quest.
 # we save and load data (list of objects) to file
 # possibilities: view, add, edit, find, delete records
+# I can do this script very simple, without one line analising, and using pickle for save and load data,
+# but Im have a new skills using this way
 # Создадим скрипт для адресной книги, сохранение и чтение ее из файла.
 # Возможности: просмотр, добавление, изменение, поиск, удаление записей
 
 import os
+# import time
+
 import sofunc
 import datetime
 
 
 contact_list = []  # main list of contacts
-file_contacts = 'file_contacts.txt'  # way to our file
+file_contacts = 'file_contacts.csv'  # way to our file
+path_to_file_contacts = os.path.join(os.getcwd(), file_contacts)  # Path to file cont
 file_exist = None  # ?DELETE?
 
 
@@ -35,7 +40,7 @@ class Contact:
 
     def __init__(self, name, **cont_params):
         """Init of object Contact. Get name and **cont_params
-        possible params: telef = str, email = str, town = str, birth(date as ??.??.????)"""
+        possible params: telephone = str, email = str, town = str, birth(date as ??.??.????)"""
 
         self.name = name
         self.telef = ''
@@ -45,7 +50,7 @@ class Contact:
         self.extra_paramlist = {}  # we can read extra params
         print(f'name = {self.name}')
         for param_nam, param_stat in cont_params.items():
-            if param_nam == 'telef':
+            if param_nam == 'telephone':
                 self.telef = param_stat
                 print(f'telephone = {self.telef}')
             elif param_nam == 'email':
@@ -62,7 +67,7 @@ class Contact:
     # end of __init__()
 
     def __str__(self):
-        """Printable variant of class"""
+        """Printable variant of class. need update for self.extra_paramlist = {}, but not now"""
 
         str_forret = 'name = {0}, telephone = {1}, email = {2}, birthdate = {3}, town = {4}'.format(
             self.name, self.telef, self.email, self.birth if self.birth is not None else '', self.town)
@@ -71,35 +76,119 @@ class Contact:
 # end of class style():
 
 
-def loaddump():
-    """load data from file to list"""
+def str_to_contact(source_str, inp_type='Keyboard'):
+    """we analize and split user data.
+    At the end, we make a record to object of class Contact"""
 
-    global file_exist
+    print(source_str)  # del
+    sep = ','
+    name_add = ''
+    to_add_cont = {}
+    rdy = False
+    if inp_type == 'File':
+        sep = ';'
+    list_toins = source_str.split(sep)
+    if len(list_toins) < 2:  # if only 1 entered item need start again
+        print('Need address or email')
+    else:
+        # This cycle is big, becouse user input is flexible.
+        # We able write like this patterns (must be Name and telephone or email as minimal), comma is our separator:
+        # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
+        # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
+        # Andrew,my@com.ru,9050442333, moscow
+        # Andrew,9050442333, moscow
+        # Andrew,my@com.ru, moscow
+        # Andrew,my@com.ru, 28.03.12
+        # etc
+        for i in range(len(list_toins)):
+            # print('i=', i) del
+            list_toins[i] = list_toins[i].rstrip().lstrip()  # del whitespaces from boards
+            if list_toins[i] == '':
+                continue
+            if i == 0:
+                name_add = list_toins[i]
+                # ~~print('name: ', name_add, end=' ')
+                continue
+            if 'email' not in to_add_cont.keys() and '@' in list_toins[i]:
+                to_add_cont['email'] = list_toins[i]
+                rdy = True  # one of one important, able to generata receord
+                continue
+            if 'telef' not in to_add_cont.keys() and sofunc.istel(list_toins[i]):
+                to_add_cont['telephone'] = list_toins[i]
+                rdy = True  # one of one important, able to generata receord
+                continue
+            if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):  # check and make date if possible
+                print(list_toins[i])
+                to_add_cont['birth'] = sofunc.makedate(list_toins[i])
+                continue
+            if 'town' not in to_add_cont.keys():
+                to_add_cont['town'] = list_toins[i]
+                # we can uncomment break to modify input. its mean, that town (not tel, not date and not email)
+                # in our input is a last position to analise. after town, we miss all entriyes
+                # break
+            # can place here continue reading arguments like: to_add_cont[str.split('=')[0]] = str.split('=')[1]
+        if rdy:
+            contact_toapp = Contact(name_add, **to_add_cont)  # Make an Obj Contact
+            contact_list.append(contact_toapp)
+            print(contact_toapp)
+            print(vars(contact_toapp))
+        else:
+            print('Not enough data, need email or telephone')
+
+
+def loaddump():
+    """load data from file to list. line per line send to func to parse string"""
+
     print('loaddump() is working')
-    path_to_file_contacts = os.path.join(os.getcwd(), file_contacts)
+    # global path_to_file_contacts
     print(path_to_file_contacts)
     if os.path.exists(path_to_file_contacts):
+        # cont_file = open(path_to_file_contacts, 'r')
+        with open(path_to_file_contacts, 'r') as cont_file:
+            for line in cont_file:
+                str_to_contact(line, inp_type='File')  # read and parse lines, type changes need to change separators
         print('have file, reading')
     else:
         print('there is no file')
-        file_exist = False
 # End of loaddump():
 
 
 def savedump():
+    """save to csv file and line by line, if I wish usage Contact.extra_paramlist need some modify"""
+
     print('savedump() is working')
+    global file_exist
+    global path_to_file_contacts
+    cont_file = open(path_to_file_contacts, 'w')
+    for contact in contact_list:  # records
+        if isinstance(contact.birth, datetime.date):   # check date or not date obj and generate str in dd.mm.YYYY
+            date_forsave = contact.birth.strftime('%d.%m.%Y')
+        else:
+            date_forsave = ''
+        print(f'{contact.name};{contact.telef};{contact.email};{date_forsave};{contact.town}')
+        strto_file = f'{contact.name};{contact.telef};{contact.email};{date_forsave};{contact.town};\n'
+        cont_file.write(strto_file)
+        """# maybe much better use:
+        # and need add datacheck and to str convert
+        # str_to_file = ''
+        # for pr_val in vars(contact).values():
+            # str_to_file += pr_val + ';'
+            # print(';'.join(pr_name.values()))
+        # print(str_to_file)"""
+    cont_file.close()
+
 # End of savedump():
 
 
 def view_contacts():
-    """Print table of our contacts"""
+    """Print table of our contacts, if I wish usage Contact.extra_paramlist need some modify"""
 
     print('view_contacts() is working')
     # Head of Table
     print('Name'.center(30) + '|' + 'Telephone'.center(15) + '|' + 'Email'.center(25) + '|' + 'Age'.center(8) + '|'
           + 'Town '.center(25))
     for contact in contact_list:  # records
-        if contact.birth is not None:
+        if isinstance(contact.birth, datetime.date):  # check date or not date obj and get Age via timedelta
             now = datetime.date.today()
             tdelta = now - contact.birth
             age = tdelta.days // 365
@@ -112,13 +201,9 @@ def view_contacts():
 
 
 def add_contact():
-    """Here we are print istruction for input, after we take input. after we analise and split user data.
-    At the end, we make a record to object of class Contact"""
+    """Here we are print istruction for input, after we take input."""
 
     while True:
-        name_add = ''
-        to_add_cont = {}
-        rdy = False
         # sofunc.clearscr()
         print('add_contact() is working')
         print('Enter data separated by commas. Template: ' + Style.YELLOW +
@@ -127,60 +212,15 @@ def add_contact():
               'Name and one of (telephone number or email). eg: Andrew, 9050442333, my@com.ru,28.03.2012,NY')
         print('Empty Enter to return to main menu')
         try:
-            user_input = input(Style.BLUE + Style.UNDERLINE + 'Input data: ' + Style.RESET + ' ')
+            user_input = input(Style.BLUE + Style.UNDERLINE + 'Input data:' + Style.RESET + ' ')
         except UnicodeError:
             print('Wrong symbol entered, Unicode decode error')
         else:
             if user_input == '':
                 print('Return to main menu')
                 break
-            list_toins = user_input.split(',')
-            if len(list_toins) < 2:   # if only 1 entered item need start again
-                print('Need address or email')
-                input('Press any key')
-                continue
-            # This cycle is big, becouse user input is flexible.
-            # We able write like this patterns (must be Name and telephone or email as minimal), comma is our separator:
-            # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
-            # Andrew, 9050442333, my@com.ru,28.03.12,Moscow
-            # Andrew,my@com.ru,9050442333, moscow
-            # Andrew,9050442333, moscow
-            # Andrew,my@com.ru, moscow
-            # Andrew,my@com.ru, 28.03.12
-            # etc
-            for i in range(len(list_toins)):
-                # ~~print('i=', i)
-                list_toins[i] = list_toins[i].rstrip().lstrip()  # del whitespaces from boards
-                if i == 0:
-                    name_add = list_toins[i]
-                    # ~~print('name: ', name_add, end=' ')
-                    continue
-                if 'email' not in to_add_cont.keys() and '@' in list_toins[i]:
-                    to_add_cont['email'] = list_toins[i]
-                    rdy = True
-                    continue
-                if 'telef' not in to_add_cont.keys() and sofunc.istel(list_toins[i]):
-                    to_add_cont['telef'] = list_toins[i]
-                    rdy = True
-                    continue
-                if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):
-                    print(list_toins[i])
-                    to_add_cont['birth'] = sofunc.makedate(list_toins[i])
-                    continue
-                if 'town' not in to_add_cont.keys():
-                    to_add_cont['town'] = list_toins[i]
-                    # we can uncomment break to modify input. its mean, that town (not tel, not date and not email)
-                    # in our input is a last position to analise. after town, we miss all entriyes
-                    # break
-
-            if rdy:
-                contact_toapp = Contact(name_add, **to_add_cont)
-                contact_list.append(contact_toapp)
-                print(contact_toapp)
-                print(vars(contact_toapp))
             else:
-                print('Not enough data')
-
+                str_to_contact(user_input)  # parse string
         input('Press any key')
 # End of add_contact()
 
@@ -197,7 +237,7 @@ def menu():
     def printpunkts(screen='main', msgstr=''):
         """clear screen and print menu"""
 
-        sofunc.clearscr()
+        # sofunc.clearscr()
         if screen == 'main':
             print(Style.YELLOW + 'Address book:'.rjust(30) + Style.RESET)
             print(Style.GREEN + 'make a choice and push ENTER:'.rjust(39) + Style.RESET)
@@ -220,14 +260,13 @@ def menu():
             add_contact()
         elif choice == '2':
             print(f'Choice: {choice}')
-            print(file_exist)
+            # print(file_exist)
             view_contacts()
         elif choice == '3':
             print(f'Choice: {choice}')
             find_contact()
         elif choice == '4':
             print(f'Choice: {choice}, quit, bye bye')
-            savedump()
             break
         else:
             print(f'Choice: {choice}')
@@ -240,7 +279,10 @@ def menu():
 def main():
     os.system('')
     print('main working')
+    global path_to_file_contacts
+    path_to_file_contacts = os.path.join(os.getcwd(), file_contacts)
     loaddump()
+    # time.sleep(5)
     try:
         menu()
     except KeyboardInterrupt:

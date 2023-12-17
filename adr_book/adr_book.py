@@ -121,11 +121,11 @@ def str_to_contact(source_str, inp_type='Keyboard'):
                 continue
             if 'email' not in to_add_cont.keys() and '@' in list_toins[i]:
                 to_add_cont['email'] = list_toins[i]
-                rdy = True  # one of one important, able to generata receord
+                rdy = True  # one of one important, able to generata record
                 continue
             if 'telef' not in to_add_cont.keys() and sofunc.istel(list_toins[i]):
                 to_add_cont['telephone'] = list_toins[i]
-                rdy = True  # one of one important, able to generata receord
+                rdy = True  # one of one important, able to generata record
                 continue
             if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):  # check and make date if possible
                 print(list_toins[i])
@@ -231,6 +231,64 @@ def printscr(page, scr_type):
 # End of printscr(page, scr_type)
 
 
+def edit_contact(contact):
+    """here we print contact data, and ask user about changes"""
+
+    while True:
+        print(contact)
+        print(Style.YELLOW + 'Edit menu, chose field to edit:' + Style.RESET)
+        print('1. Name')
+        print('2. Telephone')
+        print('3. Email')
+        print('4. Data')
+        print('5. Town')
+        print('q. Exit')
+        print(Style.BLUE + 'Enter choice: ' + Style.RESET, end='')
+        choice = input()
+        if choice == '1':
+            print(f'Old name: {contact.name}')
+            str_in = input('New name: ').strip()
+            if len(str_in) > 0:
+                contact.name = str_in
+            else:
+                print('Incorrect Name, try longer')
+        elif choice == '2':
+            print(f'Old telephone: {contact.telef}')
+            str_in = input('New telephone: ').strip()
+            if len(str_in) > 0 and sofunc.istel(str_in):  # check telephone pattern
+                contact.telef = str_in
+            else:
+                print('Incorrect telephone')
+        elif choice == '3':
+            print(f'Old Email: {contact.email}')
+            str_in = input('New email: ').strip()
+            if len(str_in) > 0 and '@' in str_in:  # is email?
+                contact.email = str_in
+            else:
+                print('Incorrect email')
+        elif choice == '4':
+            print(f"Old birthdate: {contact.birth.strftime('%d.%m.%Y')}")
+            str_in = input('New date: ').strip()
+            if len(str_in) > 0 and sofunc.isdate(str_in):  # check date pattern
+                contact.birth = sofunc.makedate(str_in)  # try to make a date
+            else:
+                print('Incorrect data')
+        elif choice == '5':
+            print(f'Old town: {contact.town}')
+            str_in = input('New town: ').strip()
+            if len(str_in) > 0:
+                contact.town = str_in
+            else:
+                print('Incorrect town, try longer')
+        elif choice == 'q':
+            print(f'Choice: {choice}, quit')
+            break
+        else:
+            print(f'Choice: {choice}')
+            # mess_to = Style.RED + 'Incorrect intput: {0}, try again'.format(choice) + Style.RESET
+            print(Style.RED + 'Incorrect intput: {0}, try again'.format(choice) + Style.RESET)
+
+
 def view_contacts(contacts):
     """Print table of our contacts, if I wish usage Contact.extra_paramlist need some modify"""
 
@@ -238,26 +296,32 @@ def view_contacts(contacts):
 
     if len(contacts) > 0:
         num_pages = len(contacts) // 10 + 1  # How many pages we can print
-        scr_typeset = 'ONLYONE'
-        cur_page = 1
+        scr_typeset = 'ONLYONE'  # we print only one page
+        cur_page = 1  # current page to print
         while True:
             if cur_page == 1 and num_pages > 1:
-                scr_typeset = 'FIRST'
+                scr_typeset = 'FIRST'  # first page, have yet
             elif 1 < cur_page < num_pages:
-                scr_typeset = 'MIDDLE'
+                scr_typeset = 'MIDDLE'  # not first, not last
             elif cur_page == num_pages and num_pages > 1:
-                scr_typeset = 'LAST'
+                scr_typeset = 'LAST'  # last page
             printscr(cur_page - 1, scr_typeset)
             print(Style.BLUE + 'Enter choice: ' + Style.RESET, end='')
             choice = input()
-            if choice == 'k' and scr_typeset not in ('ONLYONE', 'FIRST'):
+            if choice == 'k' and scr_typeset not in ('ONLYONE', 'FIRST'):  # print prev page
                 cur_page -= 1
-            elif choice == 'l' and scr_typeset not in ('ONLYONE', 'LAST'):
+                continue
+            elif choice == 'l' and scr_typeset not in ('ONLYONE', 'LAST'):  # print next page
                 cur_page += 1
+                continue
             elif choice == 'q':
                 break
-            elif choice.isnumeric():
+            elif choice.isnumeric():  # try to edit contact at this number
                 print('All numbers = redact')
+                if int(choice) in range(1, len(contacts)+1):
+                    edit_contact(contacts[int(choice)-1])
+                else:
+                    print('We havent contact with this number')
             else:
                 print('wrong input')
         """for cur_page in range(1, num_pages + 1):
@@ -291,7 +355,7 @@ def add_contact():
               'Name, telephone number, email, birth date, town' + Style.RESET)
         print(Style.MAGENTA + 'Need 2 fields as minimal. ' + Style.RESET +
               'Name and one of (telephone number or email). eg: Andrew, 9050442333, my@com.ru,28.03.2012,NY')
-        print('Empty Enter to return to main menu')
+        print('Empty Enter or q to return to main menu')
         try:
             # sofunc.clearinp()  # clear terminal buffer
             # print()
@@ -299,7 +363,7 @@ def add_contact():
         except UnicodeError:
             print('Wrong symbol entered, Unicode decode error')
         else:
-            if user_input == '':
+            if user_input == '' or user_input == 'q':
                 print('Return to main menu')
                 break
             else:
@@ -312,7 +376,41 @@ def add_contact():
 
 
 def find_contact():
+    """need descriprtion"""
+
     print('find_contact() is working')
+    while True:
+        matches_cont = {}
+        print(Style.BLUE + 'Enter String for search (empty for exit): ' + Style.RESET, end='')
+        str_search = input()
+        if len(str_search) > 0:
+            print(vars(contact_list[1]))
+            i = 0
+            while i < len(contact_list):
+                print(contact_list[i].name)
+                print(i)
+                matched = False
+                for item, item_value in vars(contact_list[i]).items():
+                    if item == 'birth':
+                        if item_value is not None and str_search in item_value.strftime('%d.%m.%Y'):
+                            print('Match by date in ', contact_list[i].name)
+                            matches_cont[str(i)] = contact_list[i]
+                            matched = True
+                    else:
+                        if str_search in item_value:
+                            print(i)
+                            print('Match by ', item, ' in ', contact_list[i].name)
+                            matches_cont[str(i)] = contact_list[i]
+                            matched = True
+                    if matched:
+                        break
+
+                i += 1
+        else:
+            break
+        print(matches_cont)
+        if len(matches_cont) == 0:
+            print('Nothing found')
     print('Press any key')
     input()
     # sofunc.waitinp()

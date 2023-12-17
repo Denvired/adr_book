@@ -8,6 +8,8 @@
 # Возможности: просмотр, добавление, изменение, поиск, удаление записей
 
 import os
+
+
 # import time
 
 import sofunc
@@ -18,6 +20,14 @@ contact_list = []  # main list of contacts
 file_contacts = 'file_contacts.csv'  # way to our file
 path_to_file_contacts = os.path.join(os.getcwd(), file_contacts)  # Path to file cont
 file_exist = None  # ?DELETE?
+
+# size of table fields
+num_twidth = 6
+name_twidth = 30
+telef_twidth = 15
+email_twidth = 25
+age_twidth = 8
+town_twidth = 25
 
 
 # for terminal color decoration
@@ -176,27 +186,98 @@ def savedump():
             # print(';'.join(pr_name.values()))
         # print(str_to_file)"""
     cont_file.close()
-
 # End of savedump():
 
 
-def view_contacts():
+def printhead():
+    """Here we print header of table"""
+
+    # Head of Table
+    print(Style.GREEN + 'num'.center(num_twidth) + '|' + 'Name'.center(name_twidth) + '|' +
+          'Telephone'.center(telef_twidth) + '|' + 'Email'.center(email_twidth) + '|' +
+          'Age'.center(age_twidth) + '|' + 'Town '.center(town_twidth) + Style.RESET)
+# End of printhead()
+
+
+def printitem(contact, nitem):
+    """Here we print fields of Contact obj"""
+
+    if isinstance(contact.birth, datetime.date):  # check date or not date obj and get Age via timedelta
+        now = datetime.date.today()
+        tdelta = now - contact.birth
+        age = tdelta.days // 365
+    else:
+        age = ''
+    strtoprn = f"{nitem:<{num_twidth}}|{contact.name:<{name_twidth}}|{contact.telef:<{telef_twidth}}|{contact.email:<{email_twidth}}|{age:<{age_twidth}}|{contact.town:<{town_twidth}}"
+    print(strtoprn)
+# End of printitem(contact, nitem)
+
+
+def printscr(page, scr_type):
+    """Here we print page of Contacts"""
+
+    print('type =', scr_type, end='')
+    print(' page =', page, ' printing: ')
+    printhead()
+    if scr_type in ('ONLYONE', 'LAST'):  # need to know how many cycles of contacts we must do
+        endsitem = len(contact_list)
+    else:
+        endsitem = page*10 + 10
+    for numitem in range(page*10, endsitem):
+        printitem(contact_list[numitem], numitem+1)
+    print(Style.MAGENTA + 'q - Exit', '    k - prev page' if scr_type in ('MIDDLE', 'LAST') else '',
+          '     l - next page' if scr_type in ('MIDDLE', 'FIRST') else '',
+          '     Enter num (eg: 21, to edit 21):' + Style.RESET)
+# End of printscr(page, scr_type)
+
+
+def view_contacts(contacts):
     """Print table of our contacts, if I wish usage Contact.extra_paramlist need some modify"""
 
     print('view_contacts() is working')
-    # Head of Table
-    print('Name'.center(30) + '|' + 'Telephone'.center(15) + '|' + 'Email'.center(25) + '|' + 'Age'.center(8) + '|'
-          + 'Town '.center(25))
-    for contact in contact_list:  # records
-        if isinstance(contact.birth, datetime.date):  # check date or not date obj and get Age via timedelta
-            now = datetime.date.today()
-            tdelta = now - contact.birth
-            age = tdelta.days // 365
-        else:
-            age = ''
-        print(f'{contact.name:<30}|{contact.telef:<15}|{contact.email:<25}|{age:<8}|{contact.town:<25}')
 
-    input('Press any key')
+    if len(contacts) > 0:
+        num_pages = len(contacts) // 10 + 1  # How many pages we can print
+        scr_typeset = 'ONLYONE'
+        cur_page = 1
+        while True:
+            if cur_page == 1 and num_pages > 1:
+                scr_typeset = 'FIRST'
+            elif 1 < cur_page < num_pages:
+                scr_typeset = 'MIDDLE'
+            elif cur_page == num_pages and num_pages > 1:
+                scr_typeset = 'LAST'
+            printscr(cur_page - 1, scr_typeset)
+            print(Style.BLUE + 'Enter choice: ' + Style.RESET, end='')
+            choice = input()
+            if choice == 'k' and scr_typeset not in ('ONLYONE', 'FIRST'):
+                cur_page -= 1
+            elif choice == 'l' and scr_typeset not in ('ONLYONE', 'LAST'):
+                cur_page += 1
+            elif choice == 'q':
+                break
+            elif choice.isnumeric():
+                print('All numbers = redact')
+            else:
+                print('wrong input')
+        """for cur_page in range(1, num_pages + 1):
+            # Analize the type of current page
+            if cur_page == 1 and num_pages > 1:
+                scr_typeset = 'FIRST'
+            elif 1 < cur_page < num_pages:
+                scr_typeset = 'MIDDLE'
+            elif cur_page == num_pages:
+                scr_typeset = 'LAST'
+            printscr(cur_page-1, scr_typeset)
+            while True:"""
+
+    else:
+        print("There is no contacts to output")
+
+    print('Press any key')
+    input()
+    # sofunc.waitinp()
+    # print(sofunc.pr_key)
 # End of view_contacts():
 
 
@@ -212,6 +293,8 @@ def add_contact():
               'Name and one of (telephone number or email). eg: Andrew, 9050442333, my@com.ru,28.03.2012,NY')
         print('Empty Enter to return to main menu')
         try:
+            # sofunc.clearinp()  # clear terminal buffer
+            # print()
             user_input = input(Style.BLUE + Style.UNDERLINE + 'Input data:' + Style.RESET + ' ')
         except UnicodeError:
             print('Wrong symbol entered, Unicode decode error')
@@ -221,13 +304,19 @@ def add_contact():
                 break
             else:
                 str_to_contact(user_input)  # parse string
-        input('Press any key')
+        print('Press any key')
+        input()
+        # sofunc.waitinp()
+        # print(sofunc.pr_key)
 # End of add_contact()
 
 
 def find_contact():
     print('find_contact() is working')
-    input('Press any key')
+    print('Press any key')
+    input()
+    # sofunc.waitinp()
+    # print(sofunc.pr_key)
 # End of find_contact():
 
 
@@ -244,7 +333,7 @@ def menu():
             print('1. Add contact')
             print('2. View contacts')
             print('3. Find (change, delete) contacts')
-            print('4. Exit')
+            print('q. Exit')
             if msgstr != '':
                 print(msgstr)
             print(Style.BLUE + 'Enter choice: ' + Style.RESET, end='')
@@ -254,6 +343,9 @@ def menu():
     printpunkts()
     while True:
         mess_to = ''  # message to send in reprint menu
+        """choice = sofunc.waitinp()
+        # print(str(choice))
+        choice = str(choice).lstrip('\'').rstrip('\'')"""
         choice = input()
         if choice == '1':
             print(f'Choice: {choice}')
@@ -261,11 +353,11 @@ def menu():
         elif choice == '2':
             print(f'Choice: {choice}')
             # print(file_exist)
-            view_contacts()
+            view_contacts(contact_list)
         elif choice == '3':
             print(f'Choice: {choice}')
             find_contact()
-        elif choice == '4':
+        elif choice == 'q':
             print(f'Choice: {choice}, quit, bye bye')
             break
         else:
@@ -288,6 +380,7 @@ def main():
     except KeyboardInterrupt:
         print('Stopping program by keyboard')
     finally:
+        # sofunc.clearinp()
         savedump()
 # End of func main():
 

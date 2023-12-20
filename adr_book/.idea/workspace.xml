@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1d048450-a5a4-4b5c-bf8c-cffa233d442d" name="Changes" comment="added search in contacts">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adr_book.py" beforeDir="false" afterPath="$PROJECT_DIR$/adr_book.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_contacts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/file_contacts.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sofunc.py" beforeDir="false" afterPath="$PROJECT_DIR$/sofunc.py" afterDir="false" />
-    </list>
+    <list default="true" id="1d048450-a5a4-4b5c-bf8c-cffa233d442d" name="Changes" comment="finished, but have some issues)) my first not small Python script" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -242,7 +237,31 @@
       <option name="project" value="LOCAL" />
       <updated>1702842964272</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="added delete for contacts and some bug fixes&#10;another minor reworks">
+      <option name="closed" value="true" />
+      <created>1703097828253</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1703097828253</updated>
+    </task>
+    <task id="LOCAL-00016" summary="added delete for contacts and some bug fixes&#10;another minor reworks">
+      <option name="closed" value="true" />
+      <created>1703100023408</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1703100023408</updated>
+    </task>
+    <task id="LOCAL-00017" summary="finished, but have some issues)) my first not small Python script">
+      <option name="closed" value="true" />
+      <created>1703100264469</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1703100264469</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -266,6 +285,8 @@
     <MESSAGE value="added savings and load from csv.file.&#10;some reworks for data type detection.&#10;some code moved to functions" />
     <MESSAGE value="added printing in table all items and able to read page style controlling uses keys for prev/next&#10;minor reworks with menu and visual" />
     <MESSAGE value="added search in contacts" />
-    <option name="LAST_COMMIT_MESSAGE" value="added search in contacts" />
+    <MESSAGE value="added delete for contacts and some bug fixes&#10;another minor reworks" />
+    <MESSAGE value="finished, but have some issues)) my first not small Python script" />
+    <option name="LAST_COMMIT_MESSAGE" value="finished, but have some issues)) my first not small Python script" />
   </component>
 </project>

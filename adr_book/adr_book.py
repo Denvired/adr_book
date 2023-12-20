@@ -287,7 +287,6 @@ def edit_contact(contact):
                 print('Press enter')
                 sofunc.try_str(key='SILENT')  # just enter any string for continue
                 return 'DEL'
-            contact.town = str_in
         elif choice == 'q':
             print(f'Choice: {choice}, quit')
             break

@@ -8,10 +8,6 @@
 # Возможности: просмотр, добавление, изменение, поиск, удаление записей
 
 import os
-
-
-# import time
-
 import sofunc
 import datetime
 
@@ -57,20 +53,20 @@ class Contact:
         self.birth = None
         self.town = ''
         self.extra_paramlist = {}  # we can read extra params
-        print(f'name = {self.name}')
+        # print(f'name = {self.name}')
         for param_nam, param_stat in cont_params.items():
             if param_nam == 'telephone':
                 self.telef = param_stat
-                print(f'telephone = {self.telef}')
+                # print(f'telephone = {self.telef}')
             elif param_nam == 'email':
                 self.email = param_stat
-                print(f'email = {self.email}')
+                # print(f'email = {self.email}')
             elif param_nam == 'birth':
                 self.birth = param_stat
-                print(f'birth = {self.birth}')
+                # print(f'birth = {self.birth}')
             elif param_nam == 'town':
                 self.town = param_stat
-                print(f'town = {self.town}')
+                # print(f'town = {self.town}')
             else:
                 self.extra_paramlist[param_nam] = param_stat  # extra params
     # end of __init__()
@@ -89,7 +85,7 @@ def str_to_contact(source_str, inp_type='Keyboard'):
     """we analize and split user data.
     At the end, we make a record to object of class Contact"""
 
-    print(source_str)  # del
+    # print(source_str)  # del
     sep = ','
     name_add = ''
     to_add_cont = {}
@@ -127,7 +123,7 @@ def str_to_contact(source_str, inp_type='Keyboard'):
                 rdy = True  # one of one important, able to generata record
                 continue
             if 'birth' not in to_add_cont.keys() and sofunc.isdate(list_toins[i]):  # check and make date if possible
-                print(list_toins[i])
+                # print(list_toins[i])
                 to_add_cont['birth'] = sofunc.makedate(list_toins[i])
                 continue
             if 'town' not in to_add_cont.keys():
@@ -139,8 +135,8 @@ def str_to_contact(source_str, inp_type='Keyboard'):
         if rdy:
             contact_toapp = Contact(name_add, **to_add_cont)  # Make an Obj Contact
             contact_list.append(contact_toapp)
-            print(contact_toapp)
-            print(vars(contact_toapp))
+            print('Was added: ', contact_toapp)
+            # print(vars(contact_toapp))
         else:
             print('Not enough data, need email or telephone')
 
@@ -148,9 +144,9 @@ def str_to_contact(source_str, inp_type='Keyboard'):
 def loaddump():
     """load data from file to list. line per line send to func to parse string"""
 
-    print('loaddump() is working')
+    # print('loaddump() is working')
     # global path_to_file_contacts
-    print(path_to_file_contacts)
+    # print(path_to_file_contacts)
     if os.path.exists(path_to_file_contacts):
         # cont_file = open(path_to_file_contacts, 'r')
         with open(path_to_file_contacts, 'r') as cont_file:
@@ -165,14 +161,14 @@ def loaddump():
 def savedump():
     """save to csv file and line by line, if I wish usage Contact.extra_paramlist need some modify"""
 
-    print('savedump() is working')
+    # print('savedump() is working')
     cont_file = open(path_to_file_contacts, 'w')
     for contact in contact_list:  # records
         if isinstance(contact.birth, datetime.date):   # check date or not date obj and generate str in dd.mm.YYYY
             date_forsave = contact.birth.strftime('%d.%m.%Y')
         else:
             date_forsave = ''
-        print(f'{contact.name};{contact.telef};{contact.email};{date_forsave};{contact.town}')
+        # print(f'{contact.name};{contact.telef};{contact.email};{date_forsave};{contact.town}')
         strto_file = f'{contact.name};{contact.telef};{contact.email};{date_forsave};{contact.town};\n'
         cont_file.write(strto_file)
         """# maybe much better use:
@@ -213,8 +209,8 @@ def printitem(contact, nitem):
 def printscr(page, scr_type, contacts):
     """Here we print page of Contacts"""
 
-    print('type =', scr_type, end='')
-    print(' page =', page, ' printing: ')
+    # print('type =', scr_type, end='')
+    # print(' page =', page, ' printing: ')
     printhead()
     if scr_type in ('ONLYONE', 'LAST'):  # need to know how many cycles of contacts we must do
         endsitem = len(contacts)
@@ -232,6 +228,7 @@ def edit_contact(contact):
     """here we print contact data, and ask user about changes"""
 
     while True:
+        sofunc.clearscr()
         print(contact)
         print(Style.YELLOW + 'Edit menu, chose field to edit:' + Style.RESET)
         print('1. Name')
@@ -287,7 +284,7 @@ def edit_contact(contact):
             if str_in == 'y':
                 contact_list.remove(contact)
                 print('Deleted')
-                print('Press any key')
+                print('Press enter')
                 sofunc.try_str(key='SILENT')  # just enter any string for continue
                 return 'DEL'
             contact.town = str_in
@@ -303,12 +300,14 @@ def edit_contact(contact):
 def view_contacts(contacts, calltype='VIEWS'):
     """Print table of our contacts, if I wish usage Contact.extra_paramlist need some modify"""
 
-    print('view_contacts() is working')
+    # print('view_contacts() is working')
+    # sofunc.clearscr()
     if len(contacts) > 0:
         num_pages = len(contacts) // 10 + 1  # How many pages we can print
         scr_typeset = 'ONLYONE'  # we print only one page
         cur_page = 1  # current page to print
         while True:
+            sofunc.clearscr()
             if cur_page == 1 and num_pages > 1:
                 scr_typeset = 'FIRST'  # first page, have yet
             elif 1 < cur_page < num_pages:
@@ -345,9 +344,6 @@ def view_contacts(contacts, calltype='VIEWS'):
 
     else:
         print("There is no contacts to output")
-
-    print('Press any key')
-    sofunc.try_str(key='SILENT')  # just enter any string for continue
 # End of view_contacts():
 
 
@@ -355,8 +351,8 @@ def add_contact():
     """Here we are print istruction for input, after we take input."""
 
     while True:
-        # sofunc.clearscr()
-        print('add_contact() is working')
+        sofunc.clearscr()
+        # print('add_contact() is working')
         print('Enter data separated by commas. Template: ' + Style.YELLOW +
               'Name, telephone number, email, birth date, town' + Style.RESET)
         print(Style.MAGENTA + 'Need 2 fields as minimal. ' + Style.RESET +
@@ -373,7 +369,7 @@ def add_contact():
             break
         else:
             str_to_contact(user_input)  # parse string
-        print('Press any key')
+        print('Press enter')
         sofunc.try_str(key='SILENT')  # just enter any string for continue
 # End of add_contact()
 
@@ -381,8 +377,9 @@ def add_contact():
 def find_contact():
     """need descriprtion"""
 
-    print('find_contact() is working')
+    # print('find_contact() is working')
     while True:
+        sofunc.clearscr()
         # matches_cont = {}
         matches_list = []
         print(Style.BLUE + 'Enter String for search (empty for exit): ' + Style.RESET, end='')
@@ -420,7 +417,7 @@ def find_contact():
         print(matches_list)
         if len(matches_list) == 0:
             print('Nothing found')
-            print('Press any key')
+            print('Press enter')
             sofunc.try_str(key='SILENT')  # just enter any string for continue
         else:
             view_contacts(matches_list, calltype='SEARCH')
@@ -434,7 +431,7 @@ def menu():
         """clear screen and print menu
         I think it must be moved to mudule, and some reworks for multiple use"""
 
-        # sofunc.clearscr()
+        sofunc.clearscr()
         if screen == 'main':
             print(Style.YELLOW + 'Address book:'.rjust(30) + Style.RESET)
             print(Style.GREEN + 'make a choice and push ENTER:'.rjust(39) + Style.RESET)
@@ -447,7 +444,7 @@ def menu():
             print(Style.BLUE + 'Enter choice: ' + Style.RESET, end='')
     # end of printpunkts():
 
-    print('menu is working')
+    # print('menu is working')
     printpunkts()
     while True:
         mess_to = ''  # message to send in reprint menu
@@ -460,7 +457,6 @@ def menu():
             add_contact()
         elif choice == '2':
             print(f'Choice: {choice}')
-            # print(file_exist)
             view_contacts(contact_list)
         elif choice == '3':
             print(f'Choice: {choice}')
@@ -478,7 +474,7 @@ def menu():
 # main body of script
 def main():
     os.system('')  # for cls/clear working
-    print('main working')
+    # print('main working')
     # noinspection PyGlobalUndefined
     global path_to_file_contacts
     path_to_file_contacts = os.path.join(os.getcwd(), file_contacts)  # our save file

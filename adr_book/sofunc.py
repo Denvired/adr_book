@@ -63,6 +63,26 @@ def waitinp():
     return pr_key
 
 
+def try_str(key='NOT_SILENT'):
+    """try to read string, and return it
+    if except return None
+    key blocking print of error, it usable in just key menu
+    if unicode error and key is STRIP return empty string '' """
+    try:
+        choice = input()
+    except UnicodeError:
+        if key == 'NOT_SILENT':
+            print('Wrong symbol entered, Unicode decode error')
+        if key == 'STRIP':  # need return something for operations
+            print('Wrong symbol entered, Unicode decode error')
+            return ''
+    else:
+        if key == 'STRIP':
+            return choice.strip()
+        else:
+            return choice
+
+
 def clearinp():
     """clear keys pressed when walking in menus. This is not good idea, but it simply works.
     Best idea to use the curses, but I not want to use the curses in this simple programm """

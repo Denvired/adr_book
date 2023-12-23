@@ -148,7 +148,7 @@ def loaddump():
     # global path_to_file_contacts
     # print(path_to_file_contacts)
     if os.path.exists(path_to_file_contacts):
-        # cont_file = open(path_to_file_contacts, 'r')
+        # cont_file = open(path_to_file_contacts, 'r', encoding='utf-8'))
         with open(path_to_file_contacts, 'r') as cont_file:
             for line in cont_file:
                 str_to_contact(line, inp_type='File')  # read and parse lines, type changes need to change separators
@@ -162,7 +162,7 @@ def savedump():
     """save to csv file and line by line, if I wish usage Contact.extra_paramlist need some modify"""
 
     # print('savedump() is working')
-    cont_file = open(path_to_file_contacts, 'w')
+    cont_file = open(path_to_file_contacts, 'w', encoding='utf-8')
     for contact in contact_list:  # records
         if isinstance(contact.birth, datetime.date):   # check date or not date obj and generate str in dd.mm.YYYY
             date_forsave = contact.birth.strftime('%d.%m.%Y')
